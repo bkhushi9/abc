@@ -281,6 +281,7 @@
         sessionStorage.setItem("valentine_unlocked", "1");
         gate.style.display = "none";
         app.style.display = "block";
+        requestAnimationFrame(() => placeButtons());
         errEl.textContent = "";
       } else {
         errEl.textContent = "Wrong code 😅 try again";
@@ -297,6 +298,7 @@
       if (unlocked) {
         gate.style.display = "none";
         app.style.display = "block";
+        requestAnimationFrame(() => placeButtons());
       } else {
         gate.style.display = "grid";
         app.style.display = "none";
