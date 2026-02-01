@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Will you be my Valentine?</title>
+
+  <style>
+    :root {
+      --bg1: #f7b3c2;
+      --bg2: #ffd1dd;
+      --card: rgba(255,255,255,.92);
+      --text: #1b1b1b;
+      --muted: rgba(27,27,27,.6);
+      --yes: #ff3b7a;
+      --yesHover: #e7306b;
+      --no: #e9e9ee;
+      --noHover: #dcdce5;
+      --shadow: 0 18px 60px rgba(0,0,0,.15);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      background: radial-gradient(circle at 20% 20%, var(--bg2), var(--bg1));
+      overflow: hidden;
+    }
+
+    .wrap { width: min(720px, 92vw); padding: 22px; }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 28px 22px 26px;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+
+    .top {
+      display: grid;
+      place-items: center;
+      gap: 14px;
+      text-align: center;
+      padding: 8px 10px 4px;
+    }
+
+    .cat {
+      width: 88px;
+      height: 88px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, #ffd6a7, #ffb9c8);
+      box-shadow: 0 10px 24px rgba(0,0,0,.08);
+      user-select: none;
+    }
+    .cat svg { width: 60px; height: 60px; }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(22px, 4.2vw, 34px);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    /* Ensure name keeps capitalization (even if you later style h1) */
+    #name { text-transform: none; }
+
+    .hint {
+      margin: 0;
+      font-size: 20px;
+      color: var(--muted);
+    }
+
+    .btnRow { position: relative; margin-top: 18px; height: 92px; display: grid; place-items: center; }
+    .btns { position: relative; width: min(520px, 92%); height: 92px; }
+
+    button {
+      position: absolute;
+      top: 22px;
+      border: none;
+      border-radius: 999px;
+      padding: 12px 22px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .08s ease, background .2s ease;
+      user-select: none;
+      touch-action: manipulation;
+      box-shadow: 0 10px 20px rgba(0,0,0,.10);
+    }
+
+    #yesBtn { left: 20%; background: var(--yes); color: white; }
+    #yesBtn:hover { background: var(--yesHover); }
+    #yesBtn:active { transform: scale(.98); }
+
+    #noBtn { left: 60%; background: var(--no); color: #333; }
+    #noBtn:hover { background: var(--noHover); }
+
+    .result { display: none; margin-top: 18px; text-align: center; animation: pop .35s ease-out both; }
+    .result h2 { margin: 6px 0 14px; font-size: clamp(26px, 5vw, 44px); letter-spacing: -0.02em; }
+
+    .media {
+      width: min(420px, 92%);
+      margin: 0 auto;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 14px 40px rgba(0,0,0,.18);
+      border: 1px solid rgba(0,0,0,.08);
+    }
+    .media img { width: 100%; height: auto; display: block; }
+
+    .footerNote { margin-top: 16px; font-size: 12px; color: var(--muted); text-align: center; }
+
+    @keyframes pop {
+      from { transform: translateY(12px) scale(.98); opacity: 0; }
+      to   { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 999; }
+
+    /* =======================
+       Password Gate styles
+       ======================= */
+    .gate {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(circle at 20% 20%, rgba(255,209,221,.95), rgba(247,179,194,.95));
+      z-index: 2000;
+      padding: 18px;
+    }
+
+    .gateCard {
+      width: min(420px, 92vw);
+      background: rgba(255,255,255,.92);
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 22px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.15);
+      padding: 22px;
+      text-align: center;
+    }
+
+    .gateTitle {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .gateSub {
+      font-size: 13px;
+      color: rgba(27,27,27,.65);
+      margin-bottom: 14px;
+    }
+
+    .gateInput {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,0,0,.12);
+      outline: none;
+      font-size: 15px;
+    }
+
+    .gateBtn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 999px;
+      border: none;
+      background: #ff3b7a;
+      color: white;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(0,0,0,.12);
+    }
+
+    .gateBtn:hover { filter: brightness(.96); }
+
+    .gateErr {
+      min-height: 18px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: #b00020;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Password Gate -->
+  <div id="gate" class="gate">
+    <div class="gateCard">
+      <div class="gateTitle">Enter the secret code 💌</div>
+      <div class="gateSub">Only for you.</div>
+
+      <input id="pw" class="gateInput" type="password" placeholder="Secret code" autocomplete="off" />
+      <button id="unlockBtn" class="gateBtn">Unlock</button>
+
+      <div id="gateErr" class="gateErr" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <!-- App content (hidden until unlocked) -->
+  <div id="app" style="display:none;">
+    <canvas id="confetti"></canvas>
+
+    <div class="wrap">
+      <div class="card">
+        <div class="top">
+          <div class="cat" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none">
+              <path d="M18 18 L10 10 L10 24 Z" fill="#F2A35D"/>
+              <path d="M46 18 L54 10 L54 24 Z" fill="#F2A35D"/>
+              <circle cx="32" cy="34" r="20" fill="#F2B06B"/>
+              <circle cx="26" cy="32" r="3" fill="#1b1b1b"/>
+              <circle cx="38" cy="32" r="3" fill="#1b1b1b"/>
+              <path d="M32 36 L29 39 L32 42 L35 39 Z" fill="#FF5A8A"/>
+            </svg>
+          </div>
+
+          <h1><span id="name">Tirth</span> will you be my valentine?</h1>
+          <p class="hint" id="subHint">“No” seems a bit shy 😈</p>
+        </div>
+
+        <div class="btnRow">
+          <div class="btns" id="arena">
+            <button id="yesBtn">Yes</button>
+            <button id="noBtn">No</button>
+          </div>
+        </div>
+
+        <div class="result" id="result">
+          <h2>YAY! 🎉</h2>
+          <div class="media">
+            <img id="yayImg" src="yay.gif" alt="Celebration" />
+          </div>
+          <div class="footerNote">Made with ❤️</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // Password Gate
+    // Password used: iloveyoutithiyourskhush
+    // =========================
+    const PASSWORD_HASH_SHA256 = "0985cf2ce086d2a36395d2e0d20ca5931005dcad47192f8db581d0cc62945f9c";
+
+    async function sha256Hex(str) {
+      const bytes = new TextEncoder().encode(str);
+      const digest = await crypto.subtle.digest("SHA-256", bytes);
+      return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function tryUnlock() {
+      const pwEl = document.getElementById("pw");
+      const errEl = document.getElementById("gateErr");
+      const gate = document.getElementById("gate");
+      const app = document.getElementById("app");
+
+      const input = (pwEl.value || "").trim();
+      if (!input) {
+        errEl.textContent = "Enter the secret code 🙂";
+        return;
+      }
+
+      const hash = await sha256Hex(input);
+      if (hash === PASSWORD_HASH_SHA256) {
+        sessionStorage.setItem("valentine_unlocked", "1");
+        gate.style.display = "none";
+        app.style.display = "block";
+        errEl.textContent = "";
+      } else {
+        errEl.textContent = "Wrong code 😅 try again";
+        pwEl.value = "";
+        pwEl.focus();
+      }
+    }
+
+    window.addEventListener("load", () => {
+      const gate = document.getElementById("gate");
+      const app = document.getElementById("app");
+      const unlocked = sessionStorage.getItem("valentine_unlocked") === "1";
+
+      if (unlocked) {
+        gate.style.display = "none";
+        app.style.display = "block";
+      } else {
+        gate.style.display = "grid";
+        app.style.display = "none";
+      }
+
+      document.getElementById("unlockBtn").addEventListener("click", tryUnlock);
+      document.getElementById("pw").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") tryUnlock();
+      });
+    });
+
+    // ====== EDIT THESE ======
+    const PERSON_NAME = "Tirth";
+    const YAY_IMAGE_URL = "yay.gif";
+    // =======================
+
+    document.getElementById("name").textContent = PERSON_NAME;
+    document.getElementById("yayImg").src = YAY_IMAGE_URL;
+
+    const arena = document.getElementById("arena");
+    const noBtn  = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+    const result = document.getElementById("result");
+    const subHint = document.getElementById("subHint");
+
+    function placeButtons() {
+      const w = arena.clientWidth;
+      yesBtn.style.left = Math.max(16, w * 0.22 - yesBtn.offsetWidth/2) + "px";
+      noBtn.style.left  = Math.max(16, w * 0.72 - noBtn.offsetWidth/2) + "px";
+      yesBtn.style.top = "22px";
+      noBtn.style.top  = "22px";
+    }
+    window.addEventListener("resize", placeButtons);
+    window.addEventListener("load", placeButtons);
+
+    function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
+
+    function moveNoButton() {
+      const pad = 10;
+      const aw = arena.clientWidth;
+      const ah = arena.clientHeight;
+
+      const nbw = noBtn.offsetWidth;
+      const nbh = noBtn.offsetHeight;
+
+      const yRect = yesBtn.getBoundingClientRect();
+      const aRect = arena.getBoundingClientRect();
+      const yesX = yRect.left - aRect.left;
+      const yesY = yRect.top  - aRect.top;
+
+      let tries = 0;
+      while (tries++ < 25) {
+        const x = clamp(Math.random() * (aw - nbw - pad*2) + pad, pad, aw - nbw - pad);
+        const y = clamp(Math.random() * (ah - nbh - pad*2) + pad, pad, ah - nbh - pad);
+
+        const dx = (x + nbw/2) - (yesX + yesBtn.offsetWidth/2);
+        const dy = (y + nbh/2) - (yesY + yesBtn.offsetHeight/2);
+        const dist = Math.hypot(dx, dy);
+
+        if (dist > 120) {
+          noBtn.style.left = x + "px";
+          noBtn.style.top  = y + "px";
+          return;
+        }
+      }
+      noBtn.style.left = (aw - nbw - pad) + "px";
+      noBtn.style.top  = pad + "px";
+    }
+
+    noBtn.addEventListener("mouseenter", moveNoButton);
+
+    noBtn.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      moveNoButton();
+      subHint.textContent = "Nice try 😄";
+    }, { passive: false });
+
+    noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      moveNoButton();
+      subHint.textContent = "Nope 😈";
+    });
+
+    yesBtn.addEventListener("click", () => {
+      // Hide "No"
+      noBtn.style.display = "none";
+
+      // Center "Yes"
+      yesBtn.style.left = "50%";
+      yesBtn.style.transform = "translateX(-50%)";
+
+      // Lock it
+      yesBtn.disabled = true;
+      yesBtn.style.opacity = "0.92";
+
+      // Show result
+      result.style.display = "block";
+      subHint.textContent = "Best decision 😌";
+
+      startConfetti();
+      setTimeout(stopConfetti, 3500);
+    });
+
+    // Confetti
+    const canvas = document.getElementById("confetti");
+    const ctx = canvas.getContext("2d");
+    let confettiTimer = null;
+    let particles = [];
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth * devicePixelRatio;
+      canvas.height = window.innerHeight * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    function makeParticles(count = 180) {
+      particles = Array.from({ length: count }, () => ({
+        x: Math.random() * window.innerWidth,
+        y: -20 - Math.random() * 200,
+        vx: (Math.random() - 0.5) * 3,
+        vy: 2 + Math.random() * 4,
+        r: 3 + Math.random() * 4,
+        a: Math.random() * Math.PI * 2,
+        va: (Math.random() - 0.5) * 0.2,
+        c: `hsl(${Math.floor(Math.random()*360)}, 90%, 60%)`
+      }));
+    }
+
+    function tick() {
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.a += p.va;
+        p.vx *= 0.99;
+        p.vy *= 0.995;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.a);
+        ctx.fillStyle = p.c;
+        ctx.fillRect(-p.r, -p.r, p.r*2, p.r*2);
+        ctx.restore();
+      }
+      particles = particles.filter(p => p.y < window.innerHeight + 40);
+      if (particles.length < 60) makeParticles(120);
+    }
+
+    function startConfetti() {
+      makeParticles(220);
+      if (confettiTimer) clearInterval(confettiTimer);
+      confettiTimer = setInterval(tick, 16);
+    }
+
+    function stopConfetti() {
+      if (confettiTimer) clearInterval(confettiTimer);
+      confettiTimer = null;
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      particles = [];
+    }
+  </script>
+</body>
+</html>
